@@ -1,6 +1,6 @@
 {
     "name": "jonasarts/google-authenticator-bundle",
-    "description": "The Google Authenticator wrapped into a bundle for Symfony",
+    "description": "A Google Authenticator Bundle for Symfony",
     "keywords": ["Google", "Authenticator", "HOTP", "TOTP"],
     "homepage": "https://github.com/jonasarts/google-authenticator-bundle",
     "type": "symfony-bundle",
