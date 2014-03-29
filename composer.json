@@ -1,0 +1,25 @@
+{
+    "name": "jonasarts/google-authenticator-bundle",
+    "description": "The Google Authenticator wrapped into a bundle for Symfony",
+    "keywords": ["Google", "Authenticator", "HOTP", "TOTP"],
+    "homepage": "https://github.com/jonasarts/google-authenticator-bundle-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonas Hauser",
+            "email": "symfony@jonasarts.com",
+            "homepage": "http://www.jonasarts.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/dependency-injection": ">=2.4",
+        "symfony/yaml": ">=2.4"
+    },
+    "autoload": {
+        "psr-0": { "jonasarts\\Bundle\\GoogleAuthenticatorBundle": "" }
+    },
+    "target-dir": "jonasarts/Bundle/GoogleAuthenticatorBundle"
+}

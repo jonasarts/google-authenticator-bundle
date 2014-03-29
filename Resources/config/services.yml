@@ -1,0 +1,7 @@
+parameters:
+    jonasarts.googleauthenticator.class: jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator
+
+services:
+    googleauthenticator:
+        class: %jonasarts.googleauthenticator.class%
+        arguments: []

@@ -1,0 +1,42 @@
+Using the bundle
+================
+
+The service class provides methods to generate and validate One-Time-Passwords (Tokens) as provided by the Google Authenticator project.
+
+Retrieve the service like any other symfony service:
+
+```php
+    $ga = $this->get('googleauthenticator');
+```
+
+In the php code examples, ``$this`` referes to a controller.
+
+```php
+    // get the service
+    $ga = $this->container->get('googleauthenticator');
+
+    // generate a new secrect
+    $secret = $ga->generateSecret();
+
+    // generate a key uri (perfect to use with the jonasarts/phpqrcode-bundle and not to send the secret to Google)
+    $keyuri = $ga->getKeyUri('IssuerName', 'test@testhost', $secret);
+    echo '<img src="/qr/png?text='.$keyuri.'"><br>'; // this only works with phpqrcode-bundle installed!
+
+    // generate a QR Code Url to display with the Google Charts API
+    $url = $ga->getQRCodeGoogleUrl('IssuerName', 'test@testhost', $secret);
+    echo '<img src="'.$url.'"><br>';
+
+    // get the current code
+    $code = $ga->getCode($secret);
+
+    echo "Checking Code '$code' and Secret '$secret':<br>";
+
+    $result = $ga->verifyCode($secret, $code, 1);    // 2 = 1 * 30 sec time tolerance -> 30 sec before and 30 sec after
+    if ($result) {
+        echo 'Code ok';
+    } else {
+        echo 'Code failed';
+    }
+```
+
+[Return to the index.](index.md)
