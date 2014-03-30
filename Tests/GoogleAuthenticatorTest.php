@@ -5,6 +5,9 @@
  *
  * (c) Jonas Hauser <symfony@jonasarts.com>
  *
+ * This file is based on Michael Kliewes GoogleAuthenticatorTest:
+ * https://github.com/PHPGangsta/GoogleAuthenticator/blob/master/tests/GoogleAuthenticatorTest.php 
+ *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -13,7 +16,7 @@ namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-use jonasarts\Bundle\GoogleAuthenticatorBundle\GoogleAuthenticator;
+use jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
 
 class GoogleAuthenticatorTest extends WebTestCase
 {
@@ -42,7 +45,7 @@ class GoogleAuthenticatorTest extends WebTestCase
     {
         $ga = $this->googleAuthenticator;
 
-        $this->assertInstanceOf('jonasarts\Bundle\GoogleAuthenticatorBundle\GoogleAuthenticator', $ga);
+        $this->assertInstanceOf('jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
     }
 
     public function testBaseEncoder()
@@ -54,7 +57,7 @@ class GoogleAuthenticatorTest extends WebTestCase
         $encoded = $base32->encode('encode this');
         // MVXGG33EMUQHI2DJOM======
 
-        $this->assertEquals('MVXGG33EMUQHI2DJOM', $encoded);
+        $this->assertEquals('MVXGG33EMUQHI2DJOM======', $encoded);
     }
 
     public function testBaseEncoderHex()
@@ -66,44 +69,44 @@ class GoogleAuthenticatorTest extends WebTestCase
         $encoded = $base32hex->encode('encode this');
         // CLN66RR4CKG78Q39EC======
 
-        $this->assertEquals('CLN66RR4CKG78Q39EC', $encoded);
+        $this->assertEquals('CLN66RR4CKG78Q39EC======', $encoded);
     }
 
-    public function testGenerateSecretDefaultLength()
+    public function testGenerateSecretLengthDefault()
     {
         $ga = $this->googleAuthenticator;
 
         $secret = $ga->generateSecret();
+        $this->assertEquals(strlen($secret), 56);
 
         $plain = $ga->getBase5Encoder()->decode($secret);
-
         $this->assertEquals(strlen($plain), 32);
     }
 
-    public function testGenerateSecretLengthCanBeSpecified()
+    public function testGenerateSecretLength()
     {
         $ga = $this->googleAuthenticator;
 
-        for ($baseLength = 0; $baseLength < 100; $baseLength++) {
-            $secret = $ga->generateSecret($baseLength);
+        for ($i = 0; $i < 100; $i++) {
+            $secret = $ga->generateSecret($i);
+            $this->assertEquals(strlen($secret), (ceil($i/5)*8));
 
             $plain = $ga->getBase5Encoder()->decode($secret);
-
-            $this->assertEquals(strlen($plain), $baseLength);
+            $this->assertEquals(strlen($plain), $i);
         }
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function testGetCodeReturnsCorrectValues($secret, $time, $code)
+    public function testGetCode($secret, $time, $code)
     {
         $generatedCode = $this->googleAuthenticator->getCode($secret, $time);
 
         $this->assertEquals($code, $generatedCode);
     }
 
-    public function testGetQRCodeUrlReturnsCorrectUrl()
+    public function testGetQRCodeUrl()
     {
         $ga = $this->googleAuthenticator;
 
@@ -112,7 +115,8 @@ class GoogleAuthenticatorTest extends WebTestCase
         $accountname = 'test@localhost';
         $prefix = 'Test';
 
-        $url = $ga->getQRCodeUrl($issuer, $accountname, $secret, $prefix);
+        // totp
+        $url = $ga->getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix);
 
         $urlParts = parse_url($url);
         parse_str($urlParts['query'], $queryStringArray);
@@ -124,21 +128,31 @@ class GoogleAuthenticatorTest extends WebTestCase
         $expectedChl = 'otpauth://totp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer;
         
         $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
+
+        // hotp
+        $url = $ga->getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix, 'hotp', 100);
+
+        $urlParts = parse_url($url);
+        parse_str($urlParts['query'], $queryStringArray);
+
+        $expectedChl = 'otpauth://hotp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer . '&counter=100';
+        
+        $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
     }
 
-    public function testVerifyCode()
+    public function testCheckCode()
     {
         $ga = $this->googleAuthenticator;
 
         $secret = 'VerifyMe';
 
         $code = $ga->getCode($secret);
-        $result = $ga->verifyCode($secret, $code);
+        $result = $ga->checkCode($secret, $code);
 
         $this->assertEquals(true, $result);
 
         $code = 'Invalid';
-        $result = $ga->verifyCode($secret, $code);
+        $result = $ga->checkCode($secret, $code);
 
         $this->assertEquals(false, $result);
     }

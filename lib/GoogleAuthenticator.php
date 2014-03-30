@@ -5,6 +5,9 @@
  *
  * (c) Jonas Hauser <symfony@jonasarts.com>
  *
+ * This file is based on Christian Stockers GoogleAuthenticator:
+ * https://github.com/chregu/GoogleAuthenticator.php/blob/master/lib/GoogleAuthenticator.php
+ *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -13,7 +16,7 @@ require_once __DIR__ . "/Base2n.php";
 
 class GoogleAuthenticator
 {
-    private $_code_length = 6;
+    private $code_length = 6;
 
     /**
      * 
@@ -66,7 +69,11 @@ class GoogleAuthenticator
      */
     public function setCodeLength($length)
     {
-        $this->_code_length = $length;
+        if ($length < 6) {
+            $length = 6;
+        }
+
+        $this->code_length = $length;
 
         return $this;
     }
@@ -82,7 +89,7 @@ class GoogleAuthenticator
             $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         }
 
-        return new \Base2n(5, $chars, FALSE, TRUE, FALSE); // not case sensitive, pad last char, no padding at the end
+        return new \Base2n(5, $chars, FALSE, TRUE, TRUE); // not case sensitive, pad last char, padding at the end
     }
     
     /**
@@ -117,41 +124,53 @@ class GoogleAuthenticator
         $value = $value & 0x7FFFFFFF;
 
         // get modulo
-        $pin_modulo = pow(10, $this->_code_length);
+        $pin_modulo = pow(10, $this->code_length);
 
-        return str_pad($value % $pin_modulo, $this->_code_length, '0', STR_PAD_LEFT);
+        return str_pad($value % $pin_modulo, $this->code_length, '0', STR_PAD_LEFT);
     }
     
     /**
      * 
-     * @param string $issuer      A issuer identifier string
-     * @param string $accountname A user identifier, best to user email-address notation
-     * @param string $secret      A Base5 encoded secret string
-     * @param string $prefix      Optional prefix
+     * @param string  $issuer      A issuer identifier string
+     * @param string  $accountname A user identifier, best to user email-address notation
+     * @param string  $secret      A Base5 encoded secret string
+     * @param string  $prefix      Optional prefix
+     * @param string  $type        Optional type; totp/hotp
+     * @param integer $counter     Optional initial counter value, required for hotp type
+     * @return string
      */
-    public function getKeyURI($issuer, $accountname, $secret, $prefix = '')
+    public function getKeyURI($issuer, $accountname, $secret, $prefix = '', $type = 'totp', $counter = 0)
     {
         // https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
-        // $issuer must be urlencoded to protect special chars!
 
         if (trim($prefix) != '') {
-            $uri =  sprintf('otpauth://totp/%s:%s?secret=%s&issuer=%s', urlencode($prefix), urlencode($accountname), $secret, urlencode($issuer));
+            $uri = sprintf('otpauth://%s/%s:%s?secret=%s&issuer=%s', $type, urlencode($prefix), urlencode($accountname), $secret, urlencode($issuer));
         } else {
-            $uri =  sprintf('otpauth://totp/%s?secret=%s&issuer=%s', urlencode($accountname), $secret, urlencode($issuer));            
+            $uri = sprintf('otpauth://%s/%s?secret=%s&issuer=%s', $type, urlencode($accountname), $secret, urlencode($issuer));            
         }
 
-        return urlencode($uri);
+        if ($type == 'hotp') {
+            $uri = sprintf('%s&counter=%d', $uri, $counter);
+        }
+
+        return $uri;
     }
 
     /**
-     * 
+     * @param string  $issuer      A issuer identifier string
+     * @param string  $accountname A user identifier, best to user email-address notation
+     * @param string  $secret      A Base5 encoded secret string
+     * @param string  $prefix      Optional prefix
+     * @param string  $type        Optional type; totp/hotp
+     * @param integer $counter     Optional initial counter value, required for hotp type
+     * @return string
      */
-    public function getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix = '')
+    public function getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix = '', $type = 'totp', $counter = 0)
     {
         $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=';
-        $otpauth = $this->getKeyURI($issuer, $accountname, $secret, $prefix);
+        $otpauth = $this->getKeyURI($issuer, $accountname, $secret, $prefix, $type, $counter);
 
-        return $qr_url . $otpauth;
+        return $qr_url . urlencode($otpauth);
     }
 
     /**
@@ -161,7 +180,7 @@ class GoogleAuthenticator
      * @param integer  $discrepancy
      * @return boolean
      */
-    public function verifyCode($secret, $code, $discrepancy = 1)
+    public function checkCode($secret, $code, $discrepancy = 1)
     {
         $time = floor(time() / 30); // 30 sec precision
 

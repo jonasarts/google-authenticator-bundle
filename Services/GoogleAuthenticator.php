@@ -18,6 +18,9 @@ require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
  */
 class GoogleAuthenticator extends \GoogleAuthenticator
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         
