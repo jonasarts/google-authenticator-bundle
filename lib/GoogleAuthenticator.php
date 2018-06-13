@@ -98,9 +98,8 @@ class GoogleAuthenticator
     public function getBase5Encoder($chars = null)
     {
         if (is_null($chars)) {
-            // 32 chars
-            //$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // old - v1.0.1
-            $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // new - v2.0.0
+            // RFC 4648 base32 alphabet; case-insensitive
+            $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         }
 
         return new \Base2n(5, $chars, FALSE, FALSE, FALSE); // not case sensitive, no pad last char, no padding at the end
@@ -111,8 +110,7 @@ class GoogleAuthenticator
      */
     public function isValidBase5($secret)
     {
-        //return preg_match('/[A-Z2-7]/', $secret);
-        return preg_match('/[A-Z2-9]/', $secret); // new - v2.0.0
+        return preg_match('/[A-Z2-7]/', $secret);
     }
     
     /**
@@ -156,7 +154,7 @@ class GoogleAuthenticator
      * 
      * @param string  $issuer      A issuer identifier string
      * @param string  $accountname A user identifier, best to user email-address notation
-     * @param string  $secret      A Base5 encoded secret string
+     * @param string  $secret      A base32 encoded secret string
      * @param string  $prefix      Optional prefix
      * @param string  $type        Optional type; totp/hotp
      * @param integer $counter     Optional initial counter value, required for hotp type
@@ -187,7 +185,7 @@ class GoogleAuthenticator
     /**
      * @param string  $issuer      A issuer identifier string
      * @param string  $accountname A user identifier, best to user email-address notation
-     * @param string  $secret      A Base5 encoded secret string
+     * @param string  $secret      A base32 encoded secret string
      * @param string  $prefix      Optional prefix
      * @param string  $type        Optional type; totp/hotp
      * @param integer $counter     Optional initial counter value, required for hotp type
