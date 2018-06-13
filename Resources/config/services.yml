@@ -1,7 +1,9 @@
 parameters:
-    jonasarts.googleauthenticator.class: jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator
+    app.googleauthenticator.class: jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator
 
 services:
     googleauthenticator:
-        class: %jonasarts.googleauthenticator.class%
-        arguments: []
+        class: "%app.googleauthenticator.class%"
+        public: true
+
+    jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator: ~
