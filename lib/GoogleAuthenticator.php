@@ -49,13 +49,25 @@ class GoogleAuthenticator
      */
     public function generateSecret($baseLength = 32)
     {
-        $secret = '';
+        $pass = array();
+        $loop = 0;
 
-        mt_srand(); // ev. optimize this to not use random at all?
+        while ($loop < $baseLength) {
+            $bytes = random_bytes(1);
 
-        for ($i = 0;  $i < $baseLength; $i++) {
-            $secret .= chr(mt_rand(33, 126));
+            $hex = bin2hex($bytes);
+            $val = hexdec($hex);
+            $index = $val % 127;
+            $char = chr($index);
+
+            if (preg_match('/[\x21-\x7e]/', $char)) {
+                $pass[] = $char;
+
+                $loop++;
+            }
         }
+
+        $secret = implode($pass);
 
         $base5 = $this->getBase5Encoder();
 
@@ -86,10 +98,21 @@ class GoogleAuthenticator
     public function getBase5Encoder($chars = null)
     {
         if (is_null($chars)) {
-            $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            // 32 chars
+            //$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // old - v1.0.1
+            $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // new - v2.0.0
         }
 
-        return new \Base2n(5, $chars, FALSE, TRUE, TRUE); // not case sensitive, pad last char, padding at the end
+        return new \Base2n(5, $chars, FALSE, FALSE, FALSE); // not case sensitive, no pad last char, no padding at the end
+    }
+
+    /**
+     * @param string $secret
+     */
+    public function isValidBase5($secret)
+    {
+        //return preg_match('/[A-Z2-7]/', $secret);
+        return preg_match('/[A-Z2-9]/', $secret); // new - v2.0.0
     }
     
     /**
@@ -120,7 +143,7 @@ class GoogleAuthenticator
         $offset = $offset & 0xF;
         
         // binary to integer
-        $value = self::hashToInt($hash, $offset);
+        $value = $this->hashToInt($hash, $offset);
         $value = $value & 0x7FFFFFFF;
 
         // get modulo
@@ -142,11 +165,16 @@ class GoogleAuthenticator
     public function getKeyURI($issuer, $accountname, $secret, $prefix = '', $type = 'totp', $counter = 0)
     {
         // https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
+        // https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+
+        if (!$this->isValidBase5($secret)) {
+            throw new \Exception('secret is not a valid base5 encoded string');
+        }
 
         if (trim($prefix) != '') {
-            $uri = sprintf('otpauth://%s/%s:%s?secret=%s&issuer=%s', $type, urlencode($prefix), urlencode($accountname), $secret, urlencode($issuer));
+            $uri = sprintf('otpauth://%s/%s:%s?secret=%s&issuer=%s', $type, rawurlencode($prefix), rawurlencode($accountname), $secret, rawurlencode($issuer));
         } else {
-            $uri = sprintf('otpauth://%s/%s?secret=%s&issuer=%s', $type, urlencode($accountname), $secret, urlencode($issuer));            
+            $uri = sprintf('otpauth://%s/%s?secret=%s&issuer=%s', $type, rawurlencode($accountname), $secret, rawurlencode($issuer));            
         }
 
         if ($type == 'hotp') {
@@ -170,7 +198,7 @@ class GoogleAuthenticator
         $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=';
         $otpauth = $this->getKeyURI($issuer, $accountname, $secret, $prefix, $type, $counter);
 
-        return $qr_url . urlencode($otpauth);
+        return $qr_url . rawurlencode($otpauth); // encoee again to protect url-in-url
     }
 
     /**
