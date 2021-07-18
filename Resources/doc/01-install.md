@@ -3,41 +3,28 @@ Setting up the bundle
 
 ## Install the bundle
 
-First add the bundle to your composer.json file: 
-
-```json
-{
-    // ...
-    "require": {
-        // ...
-        "jonasarts/google-authenticator-bundle": "1.0.*"
-    },
-    "minimum-stability": "stable",
-    // ...
-}
-```
-
-Then run composer.phar:
+Execute this console command in your project:
 
 ``` bash
-$ php composer.phar install
+$ composer require jonasarts/google-authenticator-bundle
 ```
 
 ## Enable the bundle
 
-Enable the bundle in the kernel:
+Composer enables the bundle for you in config/bundles.php
 
-```php
-// app/AppKernel.php
+Either create the `GoogleAuthenticator` as you need or register it as service
+for dependency-injection:
 
-public function registerBundles()
-{
-    $bundles = array(
-        // ...
-        new jonasarts\Bundle\GoogleAuthenticatorBundle\GoogleAuthenticatorBundle(),
-    );
-}
+```yaml
+#config/services.yaml
+jonasarts\Bundle\PHPQRCodeBundle\:
+    resource: '../vendor/jonasarts/phpqrcode-bundle/*'
+    exclude: '../vendor/jonasarts/phpqrcode-bundle/{DependencyInjection,lib,Tests}'
 ```
+
+You can now use the
+`jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator` class.
 
 ## That's it
 
