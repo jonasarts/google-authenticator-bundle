@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace jonasarts\Bundle\GoogleAuthenticatorBundle;
+namespace jonasarts\GoogleAuthenticatorBundle;
 
 class GoogleAuthenticatorBundle extends Bundle
 {

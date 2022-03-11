@@ -17,7 +17,14 @@
         "php": ">=7.2.5"
     },
     "autoload": {
-        "psr-0": { "jonasarts\\Bundle\\GoogleAuthenticatorBundle": "" }
+        "psr-4": {
+            "jonasarts\\GoogleAuthenticatorBundle\\": "src/"
+        }
     },
-    "target-dir": "jonasarts/Bundle/GoogleAuthenticatorBundle"
+    "autoload-dev": {
+        "psr-4": {
+            "jonasarts\\GoogleAuthenticatorBundle\\Tests\\": "tests/"
+        }
+    },
+    "target-dir": "jonasarts/GoogleAuthenticatorBundle"
 }

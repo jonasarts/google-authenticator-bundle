@@ -6,22 +6,22 @@
  * (c) Jonas Hauser <symfony@jonasarts.com>
  *
  * This file is based on Michael Kliewes GoogleAuthenticatorTest:
- * https://github.com/PHPGangsta/GoogleAuthenticator/blob/master/tests/GoogleAuthenticatorTest.php 
+ * https://github.com/PHPGangsta/GoogleAuthenticator/blob/master/tests/GoogleAuthenticatorTest.php
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
 
-namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Tests;
+namespace jonasarts\GoogleAuthenticatorBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-use jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
+use jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
 
 class GoogleAuthenticatorTest extends WebTestCase
 {
     /**
-     * @var $googleAuthenticator GoogleAuthenticator 
+     * @var $googleAuthenticator GoogleAuthenticator
      */
     private $googleAuthenticator;
 
@@ -45,7 +45,7 @@ class GoogleAuthenticatorTest extends WebTestCase
     {
         $ga = $this->googleAuthenticator;
 
-        $this->assertInstanceOf('jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
+        $this->assertInstanceOf('jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
     }
 
     public function testBaseEncoder()
@@ -126,7 +126,7 @@ class GoogleAuthenticatorTest extends WebTestCase
         $this->assertEquals($urlParts['path'], '/chart');
 
         $expectedChl = 'otpauth://totp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer;
-        
+
         $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
 
         // hotp
@@ -136,7 +136,7 @@ class GoogleAuthenticatorTest extends WebTestCase
         parse_str($urlParts['query'], $queryStringArray);
 
         $expectedChl = 'otpauth://hotp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer . '&counter=100';
-        
+
         $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
     }
 
@@ -156,4 +156,4 @@ class GoogleAuthenticatorTest extends WebTestCase
 
         $this->assertEquals(false, $result);
     }
-} 
+}

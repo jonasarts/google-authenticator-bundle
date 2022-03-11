@@ -8,7 +8,7 @@ In the php code examples, ``$this`` referes to a controller.
 ```php
     // get the service
     // use dependency injecton or create the authenticator class
-    $ga = new \jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator();
+    $ga = new \jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator();
 
     // generate a new secrect
     $secret = $ga->generateSecret();

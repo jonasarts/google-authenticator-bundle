@@ -17,12 +17,12 @@ Either create the `GoogleAuthenticator` class as you need or register it as serv
 
 ```yaml
 #config/services.yaml
-jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator:
+jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator:
     public: true
 ```
 
 You can now use the
-`jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator` class.
+`jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator` class.
 
 ## That's it
 
