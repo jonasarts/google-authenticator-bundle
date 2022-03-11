@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the GoogleAuthenticator bundle package.
  *
@@ -12,11 +14,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace jonasarts\GoogleAuthenticatorBundle\Tests;
+namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-use jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
+use jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
 
 class GoogleAuthenticatorTest extends WebTestCase
 {
@@ -45,7 +47,7 @@ class GoogleAuthenticatorTest extends WebTestCase
     {
         $ga = $this->googleAuthenticator;
 
-        $this->assertInstanceOf('jonasarts\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
+        $this->assertInstanceOf('jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
     }
 
     public function testBaseEncoder()

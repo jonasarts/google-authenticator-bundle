@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace jonasarts\GoogleAuthenticatorBundle;
+namespace jonasarts\Bundle\GoogleAuthenticatorBundle;
+
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class GoogleAuthenticatorBundle extends Bundle
 {
