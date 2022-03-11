@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the GoogleAuthenticator bundle package.
  *
@@ -11,7 +13,7 @@
 
 namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Services;
 
-require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
+require_once __DIR__ . '/../../lib/GoogleAuthenticator.php';
 
 /**
  * GoogleAuthenticator Service
@@ -23,6 +25,6 @@ class GoogleAuthenticator extends \GoogleAuthenticator
      */
     public function __construct()
     {
-        
+
     }
 }

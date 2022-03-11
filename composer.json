@@ -14,8 +14,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=5.3.9",
-        "symfony/framework-bundle": ">=2.8"
+        "php": ">=7.2.5"
     },
     "autoload": {
         "psr-0": { "jonasarts\\Bundle\\GoogleAuthenticatorBundle": "" }

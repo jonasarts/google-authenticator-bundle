@@ -13,14 +13,12 @@ $ composer require jonasarts/google-authenticator-bundle
 
 Composer enables the bundle for you in config/bundles.php
 
-Either create the `GoogleAuthenticator` as you need or register it as service
-for dependency-injection:
+Either create the `GoogleAuthenticator` class as you need or register it as service:
 
 ```yaml
 #config/services.yaml
-jonasarts\Bundle\PHPQRCodeBundle\:
-    resource: '../vendor/jonasarts/phpqrcode-bundle/*'
-    exclude: '../vendor/jonasarts/phpqrcode-bundle/{DependencyInjection,lib,Tests}'
+jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator:
+    public: true
 ```
 
 You can now use the
