@@ -25,6 +25,5 @@
         "psr-4": {
             "jonasarts\\GoogleAuthenticatorBundle\\Tests\\": "tests/"
         }
-    },
-    "target-dir": "jonasarts/GoogleAuthenticatorBundle"
+    }
 }
