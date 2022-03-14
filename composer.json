@@ -18,12 +18,12 @@
     },
     "autoload": {
         "psr-4": {
-            "jonasarts\\GoogleAuthenticatorBundle\\": "src/"
+            "jonasarts\\Bundle\\GoogleAuthenticatorBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "jonasarts\\GoogleAuthenticatorBundle\\Tests\\": "tests/"
+            "jonasarts\\Bundle\\GoogleAuthenticatorBundle\\Tests\\": "tests/"
         }
     }
 }
