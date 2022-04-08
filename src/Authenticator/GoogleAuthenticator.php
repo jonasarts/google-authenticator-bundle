@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Services;
+namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator;
 
 require_once __DIR__ . '/../../lib/GoogleAuthenticator.php';
 

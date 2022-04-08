@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+V 6.0.3
+-------
+
+- Added services.yaml to register authenticator service for dependency injection
+
 V 6.0.0
 -------
 
