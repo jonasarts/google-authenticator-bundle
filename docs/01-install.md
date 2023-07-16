@@ -6,23 +6,15 @@ Setting up the bundle
 Execute this console command in your project:
 
 ``` bash
-$ composer require jonasarts/google-authenticator-bundle
+composer require jonasarts/google-authenticator-bundle
 ```
 
 ## Enable the bundle
 
 Composer enables the bundle for you in config/bundles.php
 
-Either create the `GoogleAuthenticator` class as you need or register it as service:
-
-```yaml
-#config/services.yaml
-jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator:
-    public: true
-```
-
 You can now use the
-`jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator` class.
+`jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator` class.
 
 ## That's it
 

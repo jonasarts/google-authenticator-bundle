@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the GoogleAuthenticator bundle package.
  *
@@ -16,7 +18,7 @@ require_once __DIR__ . "/Base2n.php";
 
 class GoogleAuthenticator
 {
-    private $code_length = 6;
+    private int $code_length = 6;
 
     /**
      * 
@@ -24,7 +26,7 @@ class GoogleAuthenticator
      * @param integer $start
      * @return integer
      */
-    private function hashToInt($bytes, $start)
+    private function hashToInt(string $bytes, int $start): int
     {
         $input = substr($bytes, $start, strlen($bytes) - $start);
 
@@ -43,11 +45,12 @@ class GoogleAuthenticator
     }
 
     /**
-     * 
+     *
      * @param integer $baseLength
      * @return string
+     * @throws Exception
      */
-    public function generateSecret($baseLength = 32)
+    public function generateSecret(int $baseLength = 32): string
     {
         $pass = array();
         $loop = 0;
@@ -69,9 +72,9 @@ class GoogleAuthenticator
 
         $secret = implode($pass);
 
-        $base5 = $this->getBase5Encoder();
+        $base5 = $this->getBase5Encoder(null);
 
-        return $base5->encode($secret); // this is 2x the $baseLength
+        return $base5->encode($secret); // this will be ?x the $baseLength; -> ceil(len / 5 * 8)
     }
 
     /**
@@ -79,7 +82,7 @@ class GoogleAuthenticator
      * @param int $length Must at least be > 5 !
      * @return GoogleAuthenticator
      */
-    public function setCodeLength($length)
+    public function setCodeLength(int $length): static
     {
         if ($length < 6) {
             $length = 6;
@@ -92,23 +95,25 @@ class GoogleAuthenticator
 
     /**
      * 
-     * @param string $chars
+     * @param string|null $chars
      * @return Base2n
      */
-    public function getBase5Encoder($chars = null)
+    public function getBase5Encoder(string $chars = null): Base2n
     {
         if (is_null($chars)) {
             // RFC 4648 base32 alphabet; case-insensitive
             $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         }
 
-        return new \Base2n(5, $chars, FALSE, FALSE, FALSE); // not case sensitive, no pad last char, no padding at the end
+        //return new \Base2n(5, $chars, FALSE, FALSE, FALSE); // not case sensitive, no pad last char, no padding at the end
+        return new \Base2n(5, $chars, FALSE, FALSE, FALSE, '='); // not case sensitive, no pad last char, no padding at the end
     }
 
     /**
      * @param string $secret
+     * @return bool|int
      */
-    public function isValidBase5($secret)
+    public function isValidBase5(string $secret): bool|int
     {
         return preg_match('/[A-Z2-7]/', $secret);
     }
@@ -116,10 +121,10 @@ class GoogleAuthenticator
     /**
      * 
      * @param string $secret A Base5 encoded secret string
-     * @param integer $time  A unix timestamp
+     * @param int|null $time  A unix timestamp
      * @return string
      */
-    public function getCode($secret, $time = null)
+    public function getCode(string $secret, int $time = null): string
     {
         if ($time === null) {
             $time = floor(time() / 30);
@@ -147,20 +152,23 @@ class GoogleAuthenticator
         // get modulo
         $pin_modulo = pow(10, $this->code_length);
 
-        return str_pad($value % $pin_modulo, $this->code_length, '0', STR_PAD_LEFT);
+        $result = $value % $pin_modulo;
+
+        return str_pad((string)$result, $this->code_length, '0', STR_PAD_LEFT);
     }
-    
+
     /**
-     * 
-     * @param string  $issuer      A issuer identifier string
-     * @param string  $accountname A user identifier, best to user email-address notation
-     * @param string  $secret      A base32 encoded secret string
-     * @param string  $prefix      Optional prefix
-     * @param string  $type        Optional type; totp/hotp
-     * @param integer $counter     Optional initial counter value, required for hotp type
+     *
+     * @param string $issuer A issuer identifier string
+     * @param string $accountname A user identifier, best to user email-address notation
+     * @param string $secret A base32 encoded secret string
+     * @param string $prefix Optional prefix
+     * @param string $type Optional type; totp/hotp
+     * @param integer $counter Optional initial counter value, required for hotp type
      * @return string
+     * @throws Exception
      */
-    public function getKeyURI($issuer, $accountname, $secret, $prefix = '', $type = 'totp', $counter = 0)
+    public function getKeyURI(string $issuer, string $accountname, string $secret, string $prefix = '', string $type = 'totp', int $counter = 0): string
     {
         // https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
         // https://github.com/google/google-authenticator/wiki/Key-Uri-Format
@@ -183,32 +191,33 @@ class GoogleAuthenticator
     }
 
     /**
-     * @param string  $issuer      A issuer identifier string
-     * @param string  $accountname A user identifier, best to user email-address notation
-     * @param string  $secret      A base32 encoded secret string
-     * @param string  $prefix      Optional prefix
-     * @param string  $type        Optional type; totp/hotp
-     * @param integer $counter     Optional initial counter value, required for hotp type
+     * @param string $issuer A issuer identifier string
+     * @param string $accountname A user identifier, best to user email-address notation
+     * @param string $secret A base32 encoded secret string
+     * @param string $prefix Optional prefix
+     * @param string $type Optional type; totp/hotp
+     * @param integer $counter Optional initial counter value, required for hotp type
      * @return string
+     * @throws Exception
      */
-    public function getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix = '', $type = 'totp', $counter = 0)
+    public function getQRCodeGoogleUrl(string $issuer, string $accountname, string $secret, string $prefix = '', string $type = 'totp', int $counter = 0): string
     {
         $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=';
         $otpauth = $this->getKeyURI($issuer, $accountname, $secret, $prefix, $type, $counter);
 
-        return $qr_url . rawurlencode($otpauth); // encoee again to protect url-in-url
+        return $qr_url . rawurlencode($otpauth); // encode again to protect url-in-url
     }
 
     /**
      * 
-     * @param string   $secret
-     * @param string   $code
-     * @param integer  $discrepancy
+     * @param string $secret
+     * @param string $code
+     * @param integer $discrepancy
      * @return boolean
      */
-    public function checkCode($secret, $code, $discrepancy = 1)
+    public function checkCode(string $secret, string $code, int $discrepancy = 1): bool
     {
-        $time = floor(time() / 30); // 30 sec precision
+        $time = (int)floor(time() / 30); // 30 sec precision
 
         for ($i = -$discrepancy; $i <= $discrepancy; $i++) {
             if ($this->getCode($secret, $time + $i) == $code) {

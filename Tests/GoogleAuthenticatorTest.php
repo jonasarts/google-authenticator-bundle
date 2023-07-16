@@ -18,28 +18,28 @@ namespace jonasarts\Bundle\GoogleAuthenticatorBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-use jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator;
+use jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator;
 
 class GoogleAuthenticatorTest extends WebTestCase
 {
     /**
      * @var $googleAuthenticator GoogleAuthenticator
      */
-    private $googleAuthenticator;
+    private GoogleAuthenticator $googleAuthenticator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->googleAuthenticator = new GoogleAuthenticator();
     }
 
-    public function dataProvider()
+    public function dataProvider(): array
     {
         // Secret, time, code
         return array(
-            array('SECRET', '0', '200470'),
-            array('SECRET', '1000', '115913'),
-            array('SECRET', '100000', '550986'),
-            array('SECRET', '10000000', '897390'),
+            array('SECRET', 0, '200470'),
+            array('SECRET', 1000, '115913'),
+            array('SECRET', 100000, '550986'),
+            array('SECRET', 10000000, '897390'),
         );
     }
 
@@ -47,19 +47,27 @@ class GoogleAuthenticatorTest extends WebTestCase
     {
         $ga = $this->googleAuthenticator;
 
-        $this->assertInstanceOf('jonasarts\Bundle\GoogleAuthenticatorBundle\Services\GoogleAuthenticator', $ga);
+        $this->assertInstanceOf(\jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator::class, $ga);
     }
 
     public function testBaseEncoder()
     {
         $ga = $this->googleAuthenticator;
 
+        /**
+         * Base2n defaults are:
+         * $caseSensitive = TRUE, $rightPadFinalBits = FALSE, 
+         * $padFinalGroup = FALSE, $padCharacter = '=')
+         */
+
         // RFC 4648 base32 alphabet; case-insensitive
         $base32 = $ga->getBase5Encoder('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567');
         $encoded = $base32->encode('encode this');
         // MVXGG33EMUQHI2DJOM======
+        // MVXGG33EMUQHI2DJOD
 
-        $this->assertEquals('MVXGG33EMUQHI2DJOM======', $encoded);
+        $this->assertNotEquals('MVXGG33EMUQHI2DJOM======', $encoded);
+        $this->assertEquals('MVXGG33EMUQHI2DJOD', $encoded);
     }
 
     public function testBaseEncoderHex()
@@ -70,19 +78,85 @@ class GoogleAuthenticatorTest extends WebTestCase
         $base32hex = $ga->getBase5Encoder('0123456789ABCDEFGHIJKLMNOPQRSTUV');
         $encoded = $base32hex->encode('encode this');
         // CLN66RR4CKG78Q39EC======
+        // CLN66RR4CKG78Q39E3
 
-        $this->assertEquals('CLN66RR4CKG78Q39EC======', $encoded);
+        $this->assertNotEquals('CLN66RR4CKG78Q39EC======', $encoded);
+        $this->assertEquals('CLN66RR4CKG78Q39E3', $encoded);
+    }
+
+    public function testBaseEncoderForSecretWithoutPadding()
+    {
+        $ga = $this->googleAuthenticator;
+
+        $base32 = $ga->getBase5Encoder();
+
+        $secret = $base32->encode('SECRET');
+        // KNCUGUSFKQ======
+        // KNCUGUSFKE
+
+        $this->assertEquals('KNCUGUSFKE', $secret);
+    }
+
+    public function testBaseEncoderDecode()
+    {
+        $ga = $this->googleAuthenticator;
+
+        $base32 = $ga->getBase5Encoder('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567');
+
+        $original = 'encode this';
+        $encoded = $base32->encode($original);
+        $decoded = $base32->decode($encoded);
+
+        $this->assertEquals($original, $decoded);
     }
 
     public function testGenerateSecretLengthDefault()
     {
         $ga = $this->googleAuthenticator;
 
-        $secret = $ga->generateSecret();
-        $this->assertEquals(strlen($secret), 56);
-
+        $secret = $ga->generateSecret(); // default is 32
+        //echo sprintf("\ngenerated default secret: %s (%d)\n", $secret, strlen($secret));
+        $this->assertEquals(52, strlen($secret)); // 32 / 5 * 8 = 51.2 -> 52
+        
         $plain = $ga->getBase5Encoder()->decode($secret);
-        $this->assertEquals(strlen($plain), 32);
+        $this->assertEquals(32, strlen($plain));
+    }
+
+    public function testGenerateSecretLengthCustom()
+    {
+        $ga = $this->googleAuthenticator;
+
+        // 24
+        $secret24 = $ga->generateSecret(24);
+        //echo sprintf("\ngenerated custom (24) secret: %s (%d)\n", $secret, strlen($secret));
+        $this->assertEquals(39, strlen($secret24)); // 24 / 5 * 8 = ceil(38.4) -> 39
+        
+        $plain = $ga->getBase5Encoder()->decode($secret24);
+        $this->assertEquals(24, strlen($plain));
+
+
+        // 40 chars
+        $secret40 = $ga->generateSecret(40);
+        $this->assertEquals(64, strlen($secret40)); // 40 / 5 * 8 = 64
+
+        // 48 chars
+        $secret48 = $ga->generateSecret(48);
+        $this->assertEquals(77, strlen($secret48)); // 48 / 5 * 8 = ceil(76.8) -> 77
+
+        // 56 chars
+        $secret56 = $ga->generateSecret(56);
+        $this->assertEquals(90, strlen($secret56)); // 56 / 5 * 8 = ceil(89.6) -> 90
+    }
+
+    public function testGenerateSecretLength2()
+    {
+        $ga = $this->googleAuthenticator;
+
+        $i = 32; // secret length to generate for google authenticator, base5 encoding will make it longer
+
+        $secret = $ga->generateSecret($i);
+
+        $this->assertEquals($i*1.625, strlen($secret));
     }
 
     public function testGenerateSecretLength()
@@ -91,10 +165,10 @@ class GoogleAuthenticatorTest extends WebTestCase
 
         for ($i = 0; $i < 100; $i++) {
             $secret = $ga->generateSecret($i);
-            $this->assertEquals(strlen($secret), (ceil($i/5)*8));
+            $this->assertEquals((ceil($i/5*8)), strlen($secret), sprintf('iteration %d : expected %f - actual %f', $i, (ceil($i/5*8)), strlen($secret)));
 
             $plain = $ga->getBase5Encoder()->decode($secret);
-            $this->assertEquals(strlen($plain), $i);
+            $this->assertEquals($i, strlen($plain));
         }
     }
 
@@ -123,13 +197,13 @@ class GoogleAuthenticatorTest extends WebTestCase
         $urlParts = parse_url($url);
         parse_str($urlParts['query'], $queryStringArray);
 
-        $this->assertEquals($urlParts['scheme'], 'https');
-        $this->assertEquals($urlParts['host'], 'chart.googleapis.com');
-        $this->assertEquals($urlParts['path'], '/chart');
+        $this->assertEquals('https', $urlParts['scheme']);
+        $this->assertEquals('chart.googleapis.com', $urlParts['host']);
+        $this->assertEquals('/chart', $urlParts['path']);
 
         $expectedChl = 'otpauth://totp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer;
 
-        $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
+        $this->assertEquals($expectedChl, urldecode($queryStringArray['chl']));
 
         // hotp
         $url = $ga->getQRCodeGoogleUrl($issuer, $accountname, $secret, $prefix, 'hotp', 100);
@@ -139,7 +213,7 @@ class GoogleAuthenticatorTest extends WebTestCase
 
         $expectedChl = 'otpauth://hotp/' . $prefix . ':' . $accountname . '?secret=' . $secret . '&issuer=' . $issuer . '&counter=100';
 
-        $this->assertEquals(urldecode($queryStringArray['chl']), $expectedChl);
+        $this->assertEquals($expectedChl, urldecode($queryStringArray['chl']));
     }
 
     public function testCheckCode()
