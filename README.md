@@ -10,7 +10,7 @@ This bundle is a based on the ideas of [Christian Stocker](https://github.com/ch
 Installation
 ------------
 
-All the installation instructions are located in the [documentation](https://github.com/jonasarts/google-authenticator-bundle/blob/master/Resources/doc/index.md).
+All the installation instructions are located in the [documentation](https://github.com/jonasarts/google-authenticator-bundle/blob/master/docs/index.md).
 
 License
 -------
