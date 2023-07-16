@@ -3,8 +3,6 @@ Using the bundle
 
 The service class provides methods to generate and validate One-Time-Passwords (Tokens) as provided by the Google Authenticator project.
 
-In the php code examples, ``$this`` referes to a controller.
-
 ```php
     // get the service
     // use dependency injecton or create the authenticator class
