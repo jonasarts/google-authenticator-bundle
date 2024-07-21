@@ -3,9 +3,11 @@ Using the bundle
 
 The service class provides methods to generate and validate One-Time-Passwords (Tokens) as provided by the Google Authenticator project.
 
+You can also use DI to retrieve the Service.
+
 ```php
     // get the service
-    // use dependency injecton or create the authenticator class
+    // use dependency injection or create the authenticator class
     $ga = new \jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator();
 
     // generate a new secrect
