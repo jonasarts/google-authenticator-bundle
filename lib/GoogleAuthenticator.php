@@ -98,7 +98,7 @@ class GoogleAuthenticator
      * @param string|null $chars
      * @return Base2n
      */
-    public function getBase5Encoder(string $chars = null): Base2n
+    public function getBase5Encoder(?string $chars = null): Base2n
     {
         if (is_null($chars)) {
             // RFC 4648 base32 alphabet; case-insensitive
@@ -124,7 +124,7 @@ class GoogleAuthenticator
      * @param int|null $time  A unix timestamp
      * @return string
      */
-    public function getCode(string $secret, int $time = null): string
+    public function getCode(string $secret, ?int $time = null): string
     {
         if ($time === null) {
             $time = floor(time() / 30);
@@ -203,9 +203,9 @@ class GoogleAuthenticator
     public function getQRCodeGoogleUrl(string $issuer, string $accountname, string $secret, string $prefix = '', string $type = 'totp', int $counter = 0): string
     {
         $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=';
-        $otpauth = $this->getKeyURI($issuer, $accountname, $secret, $prefix, $type, $counter);
+        $otp_auth = $this->getKeyURI($issuer, $accountname, $secret, $prefix, $type, $counter);
 
-        return $qr_url . rawurlencode($otpauth); // encode again to protect url-in-url
+        return $qr_url . rawurlencode($otp_auth); // encode again to protect url-in-url
     }
 
     /**
