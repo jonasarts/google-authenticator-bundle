@@ -1,6 +1,16 @@
 CHANGE LOG
 ==========
 
+V 7.0.1
+-------
+
+- Fixed issue with PHP 8.4 nullable type declaration
+
+V 7.0.0
+-------
+
+- Requires PHP 8.2
+
 V 6.3.0
 -------
 
