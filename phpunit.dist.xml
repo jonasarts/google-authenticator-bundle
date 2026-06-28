@@ -5,10 +5,14 @@
          colors="true"
          failOnWarning="true"
          failOnDeprecation="true"
-         cacheDirectory=".phpunit.cache">
+         cacheDirectory=".phpunit.cache"
+         defaultTestSuite="unit">
     <testsuites>
-        <testsuite name="GoogleAuthenticatorBundle Test Suite">
-            <directory>tests</directory>
+        <testsuite name="unit">
+            <file>tests/GoogleAuthenticatorTest.php</file>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
     <source>

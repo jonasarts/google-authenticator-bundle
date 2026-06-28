@@ -1,42 +1,40 @@
 {
     "name": "jonasarts/google-authenticator-bundle",
     "description": "A Google Authenticator Bundle for Symfony",
-    "keywords": ["Google", "Authenticator", "HOTP", "TOTP"],
-    "homepage": "https://github.com/jonasarts/google-authenticator-bundle",
-    "type": "symfony-bundle",
     "license": "MIT",
+    "type": "symfony-bundle",
+    "keywords": [
+        "Google",
+        "Authenticator",
+        "HOTP",
+        "TOTP"
+    ],
     "authors": [
         {
             "name": "Jonas Hauser",
             "email": "symfony@jonasarts.com",
-            "homepage": "http://www.jonasarts.com"
+            "homepage": "https://www.jonasarts.com"
         }
     ],
-    "minimum-stability": "stable",
+    "homepage": "https://github.com/jonasarts/google-authenticator-bundle",
     "require": {
         "php": ">=8.4",
-        "symfony/config": "^8.0",
-        "symfony/dependency-injection": "^8.0",
-        "symfony/framework-bundle": "^8.0",
-        "symfony/http-kernel": "^8.0"
+        "symfony/dependency-injection": "^7.0 || ^8.0",
+        "symfony/http-kernel": "^7.0 || ^8.0",
+        "symfony/yaml": "^7.0 || ^8.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.64",
+        "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.0",
-        "phpunit/phpunit": "^11.0 || ^12.0",
-        "rector/rector": "^2.0"
+        "phpunit/phpunit": "^12.0 || ^13.0",
+        "rector/rector": "^2.0",
+        "symfony/framework-bundle": "^7.0 || ^8.0"
     },
     "suggest": {
         "jonasarts/phpqrcode-bundle": "Render the getKeyURI() otpauth URI as a QR code without external services."
     },
-    "scripts": {
-        "cs": "php-cs-fixer fix",
-        "cs-check": "php-cs-fixer fix --dry-run --diff",
-        "rector": "rector process",
-        "rector-check": "rector process --dry-run",
-        "phpstan": "phpstan analyse",
-        "test": "phpunit"
-    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "jonasarts\\Bundle\\GoogleAuthenticatorBundle\\": "src/"
@@ -46,5 +44,17 @@
         "psr-4": {
             "jonasarts\\Bundle\\GoogleAuthenticatorBundle\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs": "php-cs-fixer fix",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "phpstan": "phpstan analyse",
+        "rector": "rector process",
+        "rector-check": "rector process --dry-run",
+        "test": "phpunit --testsuite unit",
+        "test-integration": "phpunit --testsuite integration"
     }
 }

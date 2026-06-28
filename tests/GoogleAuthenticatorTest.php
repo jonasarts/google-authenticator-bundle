@@ -230,7 +230,7 @@ class GoogleAuthenticatorTest extends TestCase
         $this->assertEquals(32, strlen($secret)); // ceil(20 / 5 * 8) = 32
 
         $plain = $ga->getBase5Encoder()->decode($secret);
-        $this->assertEquals(20, strlen($plain));
+        $this->assertEquals(20, strlen((string) $plain));
 
         // the default length is a multiple of 5 bytes => strictly RFC 4648 base32
         $this->assertSame($secret, $ga->getBase5Encoder()->encode($plain));
@@ -249,7 +249,7 @@ class GoogleAuthenticatorTest extends TestCase
             );
 
             $plain = $ga->getBase5Encoder()->decode($secret);
-            $this->assertEquals($i, strlen($plain));
+            $this->assertEquals($i, strlen((string) $plain));
         }
     }
 
@@ -323,7 +323,7 @@ class GoogleAuthenticatorTest extends TestCase
     #[DataProvider('isValidBase5Provider')]
     public function testIsValidBase5(string $secret, bool $expected): void
     {
-        $this->assertSame($expected, (bool) $this->googleAuthenticator->isValidBase5($secret));
+        $this->assertSame($expected, $this->googleAuthenticator->isValidBase5($secret));
     }
 
     /**

@@ -6,7 +6,13 @@
 /.github                export-ignore
 /.gitattributes         export-ignore
 /.gitignore             export-ignore
-/phpunit.xml            export-ignore
+/.editorconfig          export-ignore
+/phpunit.dist.xml       export-ignore
 /rector.php             export-ignore
 /.php-cs-fixer.dist.php  export-ignore
 /phpstan.dist.neon      export-ignore
+/composer-unused.php     export-ignore
+/renovate.json          export-ignore
+/CONTRIBUTING.md        export-ignore
+/CLAUDE.md              export-ignore
+/.claude               export-ignore

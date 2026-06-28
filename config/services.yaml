@@ -4,4 +4,6 @@ services:
         autoconfigure: true
         public: false
 
-    jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator: ~
+    # Keep the service public so it stays fetchable by id / injectable.
+    jonasarts\Bundle\GoogleAuthenticatorBundle\Authenticator\GoogleAuthenticator:
+        public: true

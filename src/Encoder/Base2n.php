@@ -34,6 +34,7 @@ class Base2n
     protected int $_bitsPerCharacter;
 
     protected int $_radix;
+
     protected bool $_padFinalGroup;
 
     protected string $_padCharacter;
@@ -123,6 +124,7 @@ class Base2n
             // Empty input yields an empty encoding; preserve historic behaviour.
             return '';
         }
+
         $byteCount = count($bytes);
 
         $encodedString = '';
@@ -149,7 +151,7 @@ class Base2n
                 $oldBits = $byte ^ ($byte >> $oldBitCount << $oldBitCount);
                 $newBitCount = $bitsPerCharacter - $oldBitCount;
 
-                if (!$bytes) {
+                if ([] === $bytes) {
                     // Last bits; match final character and exit loop
                     if ($rightPadFinalBits) {
                         $oldBits <<= $newBitCount;
@@ -181,7 +183,7 @@ class Base2n
             $bits ^= $bits >> $newBitCount << $newBitCount;
             $bitsRead += $newBitCount;
 
-            if ($oldBitCount) {
+            if (0 !== $oldBitCount) {
                 // Bits come from seperate bytes, add $oldBits to $bits
                 $bits |= ($oldBits << $newBitCount);
             }
@@ -200,7 +202,7 @@ class Base2n
      */
     public function decode(string $encodedString, bool $strict = false): ?string
     {
-        if (!$encodedString) {
+        if ('' === $encodedString || '0' === $encodedString) {
             // Empty string, nothing to decode
             return '';
         }
@@ -273,7 +275,7 @@ class Base2n
 
                 $byte |= $newBits;
 
-                if (8 == $bitsWritten || $c === $lastNotatedIndex) {
+                if (8 === $bitsWritten || $c === $lastNotatedIndex) {
                     // Byte is ready to be written
                     $rawString .= pack('C', $byte);
 
