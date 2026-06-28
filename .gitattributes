@@ -1,0 +1,12 @@
+# Keep development/test/doc artifacts out of the Composer dist archive.
+# (They remain in the git repository / on GitHub.)
+
+/docs                   export-ignore
+/tests                  export-ignore
+/.github                export-ignore
+/.gitattributes         export-ignore
+/.gitignore             export-ignore
+/phpunit.xml            export-ignore
+/rector.php             export-ignore
+/.php-cs-fixer.dist.php  export-ignore
+/phpstan.dist.neon      export-ignore

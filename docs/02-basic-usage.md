@@ -13,20 +13,18 @@ You can also use DI to retrieve the Service.
     // generate a new secrect
     $secret = $ga->generateSecret();
 
-    // generate a key uri (perfect to use with the jonasarts/phpqrcode-bundle and not to send the secret to Google)
-    $keyuri = $ga->getKeyUri('IssuerName', 'test@testhost', $secret);
-    echo '<img src="/qr/png?text='.$keyuri.'"><br>'; // this only works with phpqrcode-bundle installed!
+    // generate the canonical otpauth key uri (the secret never leaves your server)
+    $keyuri = $ga->getKeyURI('IssuerName', 'test@testhost', $secret);
 
-    // generate a QR Code Url to display with the Google Charts API
-    $url = $ga->getQRCodeGoogleUrl('IssuerName', 'test@testhost', $secret);
-    echo '<img src="'.$url.'"><br>';
+    // render the key uri locally as a QR code, e.g. with jonasarts/phpqrcode-bundle
+    echo '<img src="/qr/png?text='.$keyuri.'"><br>'; // this only works with phpqrcode-bundle installed!
 
     // get the current code
     $code = $ga->getCode($secret);
 
     echo "Checking Code '$code' and Secret '$secret':<br>";
 
-    $result = $ga->verifyCode($secret, $code, 1);    // 2 = 1 * 30 sec time tolerance -> 30 sec before and 30 sec after
+    $result = $ga->checkCode($secret, $code, 1);    // discrepancy 1 = +/- 30 sec time tolerance
     if ($result) {
         echo 'Code ok';
     } else {

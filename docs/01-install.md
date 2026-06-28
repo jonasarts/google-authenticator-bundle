@@ -1,6 +1,11 @@
 Setting up the bundle
 =====================
 
+## Requirements
+
+- PHP 8.4 or higher
+- Symfony 8.0 / 8.1
+
 ## Install the bundle
 
 Execute this console command in your project:

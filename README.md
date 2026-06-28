@@ -19,4 +19,4 @@ This bundle is under the MIT license. See the complete license in the bundle:
 
     LICENSE
 
-The Google Authenticator project is available at (https://code.google.com/p/google-authenticator/) and is under the Apache License 2.0.
+The Google Authenticator project is available at (https://github.com/google/google-authenticator) and is under the Apache License 2.0.
