@@ -153,6 +153,73 @@ class GoogleAuthenticatorTest extends TestCase
     }
 
     // ---------------------------------------------------------------------
+    // verifyCode — slice-returning verification (replay-defense primitive)
+    // ---------------------------------------------------------------------
+
+    /**
+     * A valid code returns its matched absolute slice (floor($atTime / 30));
+     * an invalid code returns null.
+     */
+    public function testVerifyCodeReturnsMatchedSliceOrNull(): void
+    {
+        $ga = $this->googleAuthenticator;
+        $secret = self::RFC_SECRET;
+
+        $atTime = 1_700_000_000;
+        $slice = (int) floor($atTime / 30);
+
+        $code = $ga->getCode($secret, $slice);
+
+        $this->assertSame($slice, $ga->verifyCode($secret, $code, 1, null, $atTime));
+        $this->assertNull($ga->verifyCode($secret, 'Invalid', 1, null, $atTime));
+    }
+
+    /**
+     * With discrepancy=1 the window [current-1, current+1] is accepted; a code
+     * from current+2 falls outside the window and returns null.
+     */
+    public function testVerifyCodeDriftWindow(): void
+    {
+        $ga = $this->googleAuthenticator;
+        $secret = self::RFC_SECRET;
+
+        $atTime = 1_700_000_000;
+        $current = (int) floor($atTime / 30);
+
+        foreach ([-1, 0, 1] as $offset) {
+            $code = $ga->getCode($secret, $current + $offset);
+            $this->assertSame(
+                $current + $offset,
+                $ga->verifyCode($secret, $code, 1, null, $atTime),
+                sprintf('offset %d must be accepted', $offset)
+            );
+        }
+
+        // current+2 is outside the +/-1 window
+        $this->assertNull($ga->verifyCode($secret, $ga->getCode($secret, $current + 2), 1, null, $atTime));
+    }
+
+    /**
+     * The replay floor: a slice at or below $notBeforeSlice is never matched, so
+     * a code cannot be redeemed twice; lowering the floor by one lets it back in.
+     */
+    public function testVerifyCodeReplayFloor(): void
+    {
+        $ga = $this->googleAuthenticator;
+        $secret = self::RFC_SECRET;
+
+        $atTime = 1_700_000_000;
+        $matched = (int) floor($atTime / 30);
+        $code = $ga->getCode($secret, $matched);
+
+        // replaying with the last accepted slice as floor -> rejected
+        $this->assertNull($ga->verifyCode($secret, $code, 1, $matched, $atTime));
+
+        // a floor just below the matched slice still accepts it
+        $this->assertSame($matched, $ga->verifyCode($secret, $code, 1, $matched - 1, $atTime));
+    }
+
+    // ---------------------------------------------------------------------
     // Base32 (Base2n) encoding
     // ---------------------------------------------------------------------
 

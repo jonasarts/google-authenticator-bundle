@@ -195,17 +195,40 @@ class GoogleAuthenticator
         return $qr_url.rawurlencode($otp_auth); // encode again to protect url-in-url
     }
 
-    public function checkCode(string $secret, string $code, int $discrepancy = 1): bool
+    /**
+     * Verify a TOTP code; return the matched absolute time-slice (floor(time/30)),
+     * or null if no code in the drift window matches.
+     *
+     * Enables replay defense in the CALLER: pass the last accepted slice as
+     * $notBeforeSlice — only strictly-greater slices match, so a code cannot be
+     * redeemed twice. The caller persists the returned slice. This class stores
+     * nothing. Timing-safe (hash_equals).
+     *
+     * @param int|null $notBeforeSlice reject matches at or below this slice (replay floor)
+     * @param int|null $atTime         unix timestamp to evaluate at (default now) — for tests
+     */
+    public function verifyCode(string $secret, string $code, int $discrepancy = 1, ?int $notBeforeSlice = null, ?int $atTime = null): ?int
     {
-        $time = (int) floor(time() / 30); // 30 sec precision
+        $current = (int) floor(($atTime ?? time()) / 30);
 
         for ($i = -$discrepancy; $i <= $discrepancy; ++$i) {
+            $slice = $current + $i;
+
+            if (null !== $notBeforeSlice && $slice <= $notBeforeSlice) {
+                continue;
+            }
+
             // timing-safe comparison; getCode() is the known value, $code is user input
-            if (hash_equals($this->getCode($secret, $time + $i), $code)) {
-                return true;
+            if (hash_equals($this->getCode($secret, $slice), $code)) {
+                return $slice;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    public function checkCode(string $secret, string $code, int $discrepancy = 1): bool
+    {
+        return null !== $this->verifyCode($secret, $code, $discrepancy);
     }
 }

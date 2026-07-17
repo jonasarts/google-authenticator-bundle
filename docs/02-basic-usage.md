@@ -32,4 +32,26 @@ You can also use DI to retrieve the Service.
     }
 ```
 
+Replay-safe verification
+------------------------
+
+`checkCode()` returns a bool. For replay defense, use `verifyCode()` instead: it
+returns the matched absolute time-slice (`floor(unixtime / 30)`) or `null` if no
+code in the drift window matches. The bundle stays stateless — the caller stores
+the last accepted slice and passes it back as `$notBeforeSlice`, so a code can
+never be redeemed twice.
+
+```php
+    // $lastSlice is the last accepted slice for this user, loaded from your store
+    // (null on first use). Only strictly-greater slices are accepted.
+    $slice = $ga->verifyCode($secret, $code, 1, $lastSlice);
+    if (null !== $slice) {
+        // accept the login, then persist $slice as the new replay floor
+        $user->setLastTotpSlice($slice);
+        echo 'Code ok';
+    } else {
+        echo 'Code failed or already used';
+    }
+```
+
 [Return to the index.](index.md)

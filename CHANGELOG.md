@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.0] - 2026-07-17
+
+### Added
+
+- `GoogleAuthenticator::verifyCode()`: verifies a TOTP code and returns the
+  matched absolute time-slice (`floor(time / 30)`) instead of a bool, or `null`
+  when no code in the drift window matches. Enables replay defense in the caller
+  via the `$notBeforeSlice` floor (only strictly-greater slices match) without
+  the bundle holding any state. Timing-safe (`hash_equals`), no new dependency.
+
+### Changed
+
+- `checkCode()` now delegates to `verifyCode()`; its signature and behaviour are
+  unchanged.
+
 ## [8.0.1] - 2026-06-28
 
 ### Fixed
