@@ -46,6 +46,17 @@ class TestKernel extends Kernel
         ]);
     }
 
+    /**
+     * Keep the kernel's project (and thus config) dir out of the bundle root: in
+     * debug mode FrameworkBundle dumps `<project>/config/reference.php`, which
+     * would otherwise land in this repo's `config/` and ship with the dist.
+     */
+    #[Override]
+    public function getProjectDir(): string
+    {
+        return sys_get_temp_dir().'/google-authenticator-bundle';
+    }
+
     #[Override]
     public function getCacheDir(): string
     {

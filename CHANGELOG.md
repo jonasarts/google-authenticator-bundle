@@ -11,7 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Internal: applied current Rector rules (null-coalescing assignment, no `else`
   after `throw`) in `GoogleAuthenticator` and `Base2n`; no behaviour change.
-- Regenerated `config/reference.php` for current Symfony.
+
+### Fixed
+
+- `config/reference.php` (a Symfony config-reference dump produced by the test
+  kernel in debug mode) is no longer part of the repository or the dist package:
+  the test kernel now uses a temporary project dir, so the file is never written
+  into the bundle's `config/`.
 
 ## [8.1.0] - 2026-07-17
 
