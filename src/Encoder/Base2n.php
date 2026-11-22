@@ -84,7 +84,9 @@ class Base2n
         if ($bitsPerCharacter < 1) {
             // $bitsPerCharacter must be at least 1
             throw new InvalidArgumentException('$bitsPerCharacter can not be less than 1');
-        } elseif ($charLength < 1 << $bitsPerCharacter) {
+        }
+
+        if ($charLength < 1 << $bitsPerCharacter) {
             // Character length of $chars is too small for $bitsPerCharacter
             // Find greatest acceptable value of $bitsPerCharacter
             $bitsPerCharacter = 1;
@@ -96,7 +98,9 @@ class Base2n
 
             $radix >>= 1;
             throw new InvalidArgumentException('$bitsPerCharacter can not be more than '.$bitsPerCharacter.' given $chars length of '.$charLength.' (max radix '.$radix.')');
-        } elseif ($bitsPerCharacter > 8) {
+        }
+
+        if ($bitsPerCharacter > 8) {
             // $bitsPerCharacter must not be greater than 8
             throw new InvalidArgumentException('$bitsPerCharacter can not be greater than 8');
         }

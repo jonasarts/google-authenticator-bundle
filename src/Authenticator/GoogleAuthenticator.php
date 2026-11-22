@@ -90,10 +90,8 @@ class GoogleAuthenticator
 
     public function getBase5Encoder(?string $chars = null): Base2n
     {
-        if (null === $chars) {
-            // RFC 4648 base32 alphabet; case-insensitive
-            $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-        }
+        // RFC 4648 base32 alphabet; case-insensitive
+        $chars ??= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
         // not case sensitive, no pad last char, no padding at the end
         return new Base2n(5, $chars, false, false, false, '=');
@@ -112,9 +110,7 @@ class GoogleAuthenticator
      */
     public function getCode(string $secret, ?int $time = null): string
     {
-        if (null === $time) {
-            $time = (int) floor(time() / 30);
-        }
+        $time ??= (int) floor(time() / 30);
 
         // decode
         $base5 = $this->getBase5Encoder();
