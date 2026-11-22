@@ -39,6 +39,16 @@ This file and `CONTRIBUTING.md` are `export-ignore`d.
   `Unreleased` until tagged.
 - New dev/test/doc artifacts must be added to `.gitattributes` as `export-ignore`.
 
+## Releasing
+
+- Release tags are always `vX.Y.Z` (annotated). Never create a bare `X.Y.Z` tag.
+- Before tagging, run `git fetch --tags origin` and check both the remote tags
+  and the Packagist version list: Packagist treats `X.Y.Z` and `vX.Y.Z` as the
+  same version, so an existing tag in either form means the version is taken.
+- Published stable versions are immutable on Packagist. Never move or re-create
+  a published tag on a different commit; new code always gets a new version.
+- Before tagging, move the `Unreleased` changelog section to `## [X.Y.Z] - <date>`.
+
 ## Drift
 
 When changing a shared convention, update the registry2 template first, then this
