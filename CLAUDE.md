@@ -38,6 +38,9 @@ This file and `CONTRIBUTING.md` are `export-ignore`d.
   is the root `CHANGELOG.md` (Keep a Changelog + SemVer); top section is
   `Unreleased` until tagged.
 - New dev/test/doc artifacts must be added to `.gitattributes` as `export-ignore`.
+- A test kernel must override `getProjectDir()` (plus `getCacheDir()` /
+  `getLogDir()`) to a `sys_get_temp_dir()` path, so nothing (e.g. FrameworkBundle's
+  debug dump `config/reference.php`) is written into the bundle root.
 
 ## Releasing
 
